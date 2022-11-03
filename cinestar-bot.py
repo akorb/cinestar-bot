@@ -1,8 +1,6 @@
 import requests
 from pyquery import PyQuery
 
-# Location doesn't matter. Movies of the week are same everywhere
-URL = 'https://www.cinestar.de/kino-bremen-kristall-palast/film-der-woche-arthaus'
 
 TELEGRAM_CHANNEL_ID = '<THE CHANNEL ID>'
 TELEGRAM_BOT_TOKEN = '<THE BOT TOKEN>'
@@ -48,7 +46,7 @@ def query_movie_information(movie_id):
     return Movie(movie_id, title, poster_url)
 
 
-def get_movies_of_the_week(webpage):
+def get_fdw(webpage):
     ids_text: str = webpage('[data-show-ids]')[0].attrib['data-show-ids']
     ids = map(int, ids_text.split(','))
     movies = map(query_movie_information, ids)
@@ -68,8 +66,8 @@ def get_last_date():
         return ''
 
 
-def get_webpage():
-    pq = PyQuery(URL)
+def get_webpage(fdw_page_url):
+    pq = PyQuery(fdw_page_url)
     return pq
 
 
@@ -78,13 +76,31 @@ def get_date_text(webpage: PyQuery):
     return date_text
 
 
+def get_fdw_identifier():
+    response = requests.get("https://www.cinestar.de/api/attribute/?appVersion=1.5.3")
+    json = response.json()
+    identifier = next(obj['name'] for obj in json if obj['id'] == 'ET_FILM_DER_WOCHE')
+    return identifier
+
+
+def get_fdw_page_url(fdw_identifier):
+    response = requests.get("https://www.cinestar.de/aets/flaps/1?appVersion=1.5.3")
+    json = response.json()
+    url = next(obj['link'] for obj in json if obj['title'] == fdw_identifier)
+    # Location doesn't matter. Film der Woche is same everywhere
+    return url.replace('/redirect/', '/kino-bremen-kristall-palast/')
+
+
 def main():
-    webpage = get_webpage()
+    fdw_identifier = get_fdw_identifier()
+    fdw_page_url = get_fdw_page_url(fdw_identifier)
+    
+    webpage = get_webpage(fdw_page_url)
     date = get_date_text(webpage)
     last_date = get_last_date()
     if date != last_date:
         write_new_date(date)
-        movies = get_movies_of_the_week(webpage)
+        movies = get_fdw(webpage)
         send_update_to_telegram(date, movies)
 
 
