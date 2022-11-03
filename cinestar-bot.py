@@ -2,7 +2,7 @@ import requests
 from pyquery import PyQuery
 
 # Location doesn't matter. Movies of the week are same everywhere
-URL = 'https://www.cinestar.de/kino-bremen-kristall-palast/film-der-woche'
+URL = 'https://www.cinestar.de/kino-bremen-kristall-palast/film-der-woche-arthaus'
 
 TELEGRAM_CHANNEL_ID = '<THE CHANNEL ID>'
 TELEGRAM_BOT_TOKEN = '<THE BOT TOKEN>'
