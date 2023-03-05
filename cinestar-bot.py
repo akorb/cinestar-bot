@@ -4,6 +4,7 @@ from pyquery import PyQuery
 
 TELEGRAM_CHANNEL_ID = '<THE CHANNEL ID>'
 TELEGRAM_BOT_TOKEN = '<THE BOT TOKEN>'
+CINEMA_ID = 29  # Cinema Jena, randomly chosen
 
 
 class Movie:
@@ -67,7 +68,7 @@ def get_last_date():
 
 
 def get_webpage(fdw_page_url):
-    pq = PyQuery(fdw_page_url)
+    pq = PyQuery(url=fdw_page_url)
     return pq
 
 
@@ -83,17 +84,25 @@ def get_fdw_identifier():
     return identifier
 
 
-def get_fdw_page_url(fdw_identifier):
-    response = requests.get("https://www.cinestar.de/aets/flaps/1?appVersion=1.5.3")
+def get_cinema_suburl():
+    response = requests.get(f"https://www.cinestar.de/api/cinema/?appVersion=1.5.3")
+    json = response.json()
+    url = next(obj['slug'] for obj in json if obj['id'] == CINEMA_ID)
+    return url
+
+
+def get_fdw_page_url(fdw_identifier, suburl):
+    response = requests.get(f"https://www.cinestar.de/aets/flaps/{CINEMA_ID}?appVersion=1.5.3")
     json = response.json()
     url = next(obj['link'] for obj in json if obj['title'] == fdw_identifier)
     # Location doesn't matter. Film der Woche is same everywhere
-    return url.replace('/redirect/', '/kino-bremen-kristall-palast/')
+    return url.replace('/redirect/', f'/{suburl}/')
 
 
 def main():
     fdw_identifier = get_fdw_identifier()
-    fdw_page_url = get_fdw_page_url(fdw_identifier)
+    suburl = get_cinema_suburl()
+    fdw_page_url = get_fdw_page_url(fdw_identifier, suburl)
     
     webpage = get_webpage(fdw_page_url)
     date = get_date_text(webpage)
