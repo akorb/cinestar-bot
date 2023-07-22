@@ -1,0 +1,3 @@
+TELEGRAM_CHANNEL_ID = '<THE CHANNEL ID>'
+TELEGRAM_BOT_TOKEN = '<THE BOT TOKEN>'
+CINEMA_ID = 29  # Cinema Jena, randomly chosen

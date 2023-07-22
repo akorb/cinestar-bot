@@ -1,10 +1,6 @@
 import requests
 from pyquery import PyQuery
-
-
-TELEGRAM_CHANNEL_ID = '<THE CHANNEL ID>'
-TELEGRAM_BOT_TOKEN = '<THE BOT TOKEN>'
-CINEMA_ID = 29  # Cinema Jena, randomly chosen
+from cinestar_config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID, CINEMA_ID
 
 
 class Movie:
